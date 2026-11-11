@@ -1,0 +1,158 @@
+{
+    // ============================================================
+    //  IntelliSense 配置（module/re）
+    //
+    //  两个配置，命令面板 "C/C++: Select a Configuration..." 切换。
+    //
+    //  ① "re (CMake Tools)"  ← 默认。**仓库里零本机路径，同事不用改任何东西。**
+    //     路径、宏、以及"用哪个编译器"全部由 CMake 提供（cpptools 通过
+    //     CMake Tools 扩展读 build\.cmake\api\v1\reply\* 与 CMake 的 kit）。
+    //     CMake 自己会用 vswhere/注册表找到本机的 Visual Studio，所以每台机器
+    //     都不用配编译器 —— 这就是躲开"每人改一行"的答案。
+    //     要求：装 CMake Tools 扩展（仓库 .vscode\extensions.json 已推荐），
+    //           并在本工程 configure 过一次（打开工程时 configureOnOpen 会做；
+    //           clean.bat 删掉 build\ 之后，执行一次 "CMake: Configure"）。
+    //
+    //  ② "re (static)"       ← 兜底。不依赖任何扩展，路径逐条写死。
+    //     内容取自本工程构建树的 CMake File API：
+    //       build\.cmake\api\v1\reply\target-{UIRE_Chip,UIRE_Wafer,
+    //       GUI_TL_RM_CHIP,GUI_TL_RM_Wafer}-{Debug,Release}-*.json
+    //     的 compileGroups[].includes[].path 与 [].defines[].define
+    //     （Debug/Release 取并集，去掉只在 Release 出现的 QT_NO_DEBUG）。
+    //     平台头文件在 platform\ 子仓里、属于本 workspace，所以同样相对化。
+    //     它里面**不写 compilerPath**：系统头（<iostream>/<type_traits>/…）由
+    //     cpptools 自己探测的编译器提供。探测不到时（本机就是这种情况：注册表
+    //     SxS\VS7 里只有 VS2015 残留，cpptools 认不到 D:\VS2019 的 VS2019），
+    //     在你自己的【用户设置】里加一行 —— 机器相关的东西放用户设置，不进仓库：
+    //         "C_Cpp.default.compilerPath": "D:/VS2019/2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe"
+    //     或命令面板 "C/C++: Select IntelliSense Configuration..." 手动挑一个。
+    //     说明：C++ IDE 都必须被告知用哪个编译器（Qt Creator 里那叫 Kit），
+    //     无法凭 includePath 绕过；把它放用户设置就能做到"每台机器一次、仓库不动"。
+    // ============================================================
+    "version": 4,
+    "configurations": [
+        {
+            // 默认：全自动，仓库零本机路径
+            "name": "re (CMake Tools)",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "intelliSenseMode": "windows-msvc-x64",
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        },
+        {
+            // 兜底：不装扩展也能用（系统头按文件头说明在用户设置里补编译器）
+            "name": "re (static)",
+            "intelliSenseMode": "windows-msvc-x64",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            // "compilerPath": ${env:VCToolsInstallDir}bin/Hostx64/x64/cl.exe  （可选）
+
+            "includePath": [
+                // ---- 本工程源码（Chip / Wafer 两套产品）----
+                "${workspaceFolder}/MainProject",
+                "${workspaceFolder}/MainProject/MainProjectChip",
+                "${workspaceFolder}/MainProject/MainProjectWafer",
+                "${workspaceFolder}/MainProject/MainProjectWafer/Algorithm",
+
+                // ---- 平台子仓头文件（platform/ 在 workspace 内）----
+                "${workspaceFolder}/platform/GUI_TL_RM/libUIRM/include",
+                "${workspaceFolder}/platform/RM/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/common/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarbasicvalue/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarjson/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarlog/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarmw/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istargf/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istaryaml/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarsm/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarthreadpool/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarcsv/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarencryption/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarfilesystem/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarserializer/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarxml/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarzmqworker/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarguicomponent/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istaruistyle/include",
+                "${workspaceFolder}/platform/basiclibrary_output/include/istarlanguage/include",
+
+                // ---- AUTOMOC / AUTOUIC 生成物（moc_*.cpp / ui_*.h）----
+                "${workspaceFolder}/build/GUI_TL_RM_CHIP_autogen/include_Debug",
+                "${workspaceFolder}/build/GUI_TL_RM_CHIP_autogen/include_Release",
+                "${workspaceFolder}/build/GUI_TL_RM_Wafer_autogen/include_Debug",
+                "${workspaceFolder}/build/GUI_TL_RM_Wafer_autogen/include_Release",
+                "${workspaceFolder}/build/UIRE_Chip_autogen/include_Debug",
+                "${workspaceFolder}/build/UIRE_Chip_autogen/include_Release",
+                "${workspaceFolder}/build/UIRE_Wafer_autogen/include_Debug",
+                "${workspaceFolder}/build/UIRE_Wafer_autogen/include_Release",
+
+                // ---- Qt5：环境变量优先，再 4 个标准安装位置（与旧脚本一致）----
+                "${env:QTDIR}/include",
+                "${env:QTDIR}/include/QtCore",
+                "${env:QTDIR}/include/QtGui",
+                "${env:QTDIR}/include/QtWidgets",
+                "${env:QTDIR}/include/QtANGLE",
+                "${env:QTDIR}/mkspecs/win32-msvc",
+
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include",
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtCore",
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtGui",
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtWidgets",
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtANGLE",
+                "D:/Qt/Qt5.12.12/5.12.12/msvc2017_64/mkspecs/win32-msvc",
+
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include",
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtCore",
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtGui",
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtWidgets",
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/include/QtANGLE",
+                "C:/Qt/Qt5.12.12/5.12.12/msvc2017_64/mkspecs/win32-msvc",
+
+                "D:/Qt/5.15.2/msvc2019_64/include",
+                "D:/Qt/5.15.2/msvc2019_64/include/QtCore",
+                "D:/Qt/5.15.2/msvc2019_64/include/QtGui",
+                "D:/Qt/5.15.2/msvc2019_64/include/QtWidgets",
+                "D:/Qt/5.15.2/msvc2019_64/include/QtANGLE",
+                "D:/Qt/5.15.2/msvc2019_64/mkspecs/win32-msvc",
+
+                "C:/Qt/5.15.2/msvc2019_64/include",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtCore",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtGui",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtWidgets",
+                "C:/Qt/5.15.2/msvc2019_64/include/QtANGLE",
+                "C:/Qt/5.15.2/msvc2019_64/mkspecs/win32-msvc",
+
+                // ---- 最后的兜底（cpptools 的 includePath 支持 ** 递归）----
+                "${workspaceFolder}/**"
+            ],
+
+            // 与构建一致：MSVC 的 WIN32/_WINDOWS（re 的 vcxproj 里没有
+            // UNICODE/_UNICODE），共享模块加的 _HAS_STD_BYTE=0，
+            // 以及各 target 的编译定义（GUI_DEBUG 是 Debug 的，*_EXPORTS 是
+            // 两个界面库自己的）。
+            "defines": [
+                "WIN32",
+                "_WINDOWS",
+                "_HAS_STD_BYTE=0",
+                "GUI_DEBUG",
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_WIDGETS_LIB",
+                "UIRE_Chip_EXPORTS",
+                "UIRE_Wafer_EXPORTS"
+            ],
+
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/MainProject",
+                    "${workspaceFolder}/MainProject/MainProjectChip",
+                    "${workspaceFolder}/MainProject/MainProjectWafer",
+                    "${workspaceFolder}/platform",
+                    "${workspaceFolder}/build",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            }
+        }
+    ]
+}

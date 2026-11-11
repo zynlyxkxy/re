@@ -1,0 +1,122 @@
+{
+    // 只调 scripts\ 下的脚本，没有绝对路径。
+    // _SCRIPT_NO_HOLD=1 让脚本不要停在"请按任意键继续"，否则任务会挂住。
+    //
+    // "build: <exe> (debug/release)" 这几个任务带 -t，只构建那一个 target：
+    // 调试时按 F5 另一个配置，如果 preLaunchTask 去构建**全部** target，就会
+    // 重链正在运行的那个 exe，报 LNK1168 并导致这次启动被掐掉。
+    // launch.json 里每个配置用各自的那条任务。
+    // 注意：re 的 -t 只收窄 REV2 那一步，platform 子仓照旧先构建（见 scripts\build-debug.bat）。
+    //
+    // "build: platform (debug/release)" 走 scripts\private_scripts\_build-platform.bat（内部脚本）：
+    // 控制层 CTL_TL_RM 是 **platform 子仓** 的产物（不是 re 的 target），
+    // 它的运行目录是 platform\deploy\<cfg>\，所以调试它时用这两条任务单独构建平台，
+    // 不去碰 reV2 的 target（也就不会撞上正在运行的 CHIP/Wafer GUI）。
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build: debug",
+            "type": "shell",
+            "command": "scripts\\build-debug.bat",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "group": { "kind": "build", "isDefault": true },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: release",
+            "type": "shell",
+            "command": "scripts\\build-release.bat",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "group": "build",
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: GUI_TL_RM_CHIP (debug)",
+            "type": "shell",
+            "command": "scripts\\build-debug.bat",
+            "args": ["-t", "GUI_TL_RM_CHIP"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: GUI_TL_RM_Wafer (debug)",
+            "type": "shell",
+            "command": "scripts\\build-debug.bat",
+            "args": ["-t", "GUI_TL_RM_Wafer"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: GUI_TL_RM_CHIP (release)",
+            "type": "shell",
+            "command": "scripts\\build-release.bat",
+            "args": ["-t", "GUI_TL_RM_CHIP"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: GUI_TL_RM_Wafer (release)",
+            "type": "shell",
+            "command": "scripts\\build-release.bat",
+            "args": ["-t", "GUI_TL_RM_Wafer"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: platform (debug)",
+            "type": "shell",
+            "command": "scripts\\private_scripts\\_build-platform.bat",
+            "args": ["Debug"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "build: platform (release)",
+            "type": "shell",
+            "command": "scripts\\private_scripts\\_build-platform.bat",
+            "args": ["Release"],
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": ["$msCompile"]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "scripts\\clean.bat",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "clean (platform too)",
+            "type": "shell",
+            "command": "scripts\\clean.bat platform",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "sync -> mctrl/gui",
+            "type": "shell",
+            "command": "scripts\\sync.bat",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": []
+        },
+        {
+            "label": "update platform",
+            "type": "shell",
+            "command": "scripts\\update_platform.bat",
+            "options": { "cwd": "${workspaceFolder}", "env": { "_SCRIPT_NO_HOLD": "1" } },
+            "presentation": { "reveal": "always", "panel": "shared", "clear": true },
+            "problemMatcher": []
+        }
+    ]
+}

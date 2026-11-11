@@ -1,0 +1,49 @@
+# ============================================================
+#  预编译依赖 —— 不进仓库（单个 dll 可达 100 MB+，超过 GitHub 单文件上限）
+#  用 Release 里的 deps 包解压还原，见 MANIFEST.md
+# ============================================================
+/platform/
+
+# 构建产物
+/build/
+/build_*/
+/output/
+/bin/
+/out/
+/cmake-build-*/
+
+# 编辑器 / 工具个人配置
+*.user
+.vs/
+.idea/
+.claude/
+
+# 日志 / 中间物
+/Log*
+*.log
+*.obj
+*.pdb
+*.ilk
+*.exp
+
+# ---- 以下是原内网 .gitignore 的其余规则 ----
+# 缂栬緫鍣?/ 宸ュ叿鐨勪釜浜洪厤缃紙鏃ц鍒?.c* / .v* 澶锛屼細鎶?.vscode銆?clang-format 涓€璧峰拷鐣ワ級
+.idea/
+*.user
+.vs/
+# Claude Code
+.claude/
+# 鏋勫缓浜х墿
+/build/
+/output/
+cmake-build-*/
+bin/
+out/
+# 鏃ュ織
+/Log*
+# MSVC
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.log

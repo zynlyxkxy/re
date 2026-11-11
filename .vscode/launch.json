@@ -1,0 +1,116 @@
+{
+    // 全部用 ${workspaceFolder} 相对路径，没有任何机器相关的绝对路径。
+    //
+    // 两类程序，运行目录不一样：
+    //  1) re 自己的两个 GUI（GUI_TL_RM_CHIP / GUI_TL_RM_Wafer）
+    //     → build\<Config>\，自包含（平台部署集、config、依赖 dll 都在 exe 旁）
+    //  2) 控制层 CTL_TL_RM
+    //     → platform\deploy\<Config>\，因为它是 **platform 子仓** 的产物，
+    //       不是 re 的 target（re 只把它搬到 output\exe\ 供顶层装配）。
+    //       platform\deploy\<Config>\ 是平台自己 install + deploy_product 拍平出来的
+    //       自包含运行目录（ISTAR/Qt/rm + platforms + 配置），exe 里记录的 pdb 路径
+    //       指回 platform\build 树，所以断点/单步是有效的。
+    //       Debug 与 Release 是两个独立目录，互不影响。
+    //
+    // Debug 构建的 exe 名不变（只有库带 d 后缀：libUIRE_CHIPd.dll）——
+    // CMAKE_DEBUG_POSTFIX 对可执行文件不生效。
+    //
+    // preLaunchTask：
+    //  - GUI 用 per-exe 任务（只构建自己那个 target），避免重链另一个正在跑的 exe（LNK1168）；
+    //  - CTL 用 build: platform (debug/release)（只编平台，不碰 reV2）；
+    //  - "(no build)" 变体不构建，用来"先构建好，再把多个程序同时起起来"，
+    //    这样不会去覆盖正在被别的程序加载的 dll（那种情况报 LNK1168 / Error copying file）。
+    //
+    // .vscode\qt5.natvis 是 Qt 官方那份 natvis（MIT），
+    // 用 visualizerFile 挂给 cppvsdbg，调试时 QString/QList/QHash 这类
+    // Qt 类型在监视窗口里能直接读，不用再展开内部结构。
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "GUI_TL_RM_CHIP (Debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/GUI_TL_RM_CHIP.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/Debug",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: GUI_TL_RM_CHIP (debug)"
+        },
+        {
+            "name": "GUI_TL_RM_Wafer (Debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Debug/GUI_TL_RM_Wafer.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/Debug",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: GUI_TL_RM_Wafer (debug)"
+        },
+        {
+            "name": "CTL_TL_RM (Debug)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/platform/deploy/Debug/CTL_TL_RM.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/platform/deploy/Debug",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: platform (debug)"
+        },
+        {
+            "name": "CTL_TL_RM (Release)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/platform/deploy/Release/CTL_TL_RM.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/platform/deploy/Release",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: platform (release)"
+        },
+        {
+            "name": "GUI_TL_RM_CHIP (Release)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Release/GUI_TL_RM_CHIP.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/Release",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: GUI_TL_RM_CHIP (release)"
+        },
+        {
+            "name": "GUI_TL_RM_Wafer (Release)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Release/GUI_TL_RM_Wafer.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build/Release",
+            "console": "integratedTerminal",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true,
+            "preLaunchTask": "build: GUI_TL_RM_Wafer (release)"
+        },
+        {
+            "name": "Attach to process",
+            "type": "cppvsdbg",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "visualizerFile": "${workspaceFolder}/.vscode/qt5.natvis",
+            "showDisplayString": true
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+    // 构建入口统一走 CMakePresets —— scripts\build-*.bat 调的是同一批 preset，
+    // 所以 IDE 里构建和脚本构建产出的东西完全一样（含 output\）。
+    // 注意：真的要用 IDE 构建 re 之前，platform 子仓必须先构建过
+    // （scripts\build-release.bat 会做这件事），否则链接/install 会报找不到平台产物。
+    "cmake.useCMakePresets": "always",
+    "cmake.configurePreset": "win64",
+    "cmake.configureOnOpen": true,
+    "cmake.configureOnEdit": false,
+
+    // ============================================================
+    //  IntelliSense：默认走 CMake Tools（见 c_cpp_properties.json 的 ①）
+    //   —— include 路径、宏、编译器全部由 CMake 提供，仓库里没有任何本机路径，
+    //      同事不需要为自己改任何被 git 跟踪的文件。
+    //
+    //  这里**故意不写** "C_Cpp.default.configurationProvider"：它会把
+    //  c_cpp_properties.json 里的 ② (static) 一并接管，兜底配置就失去意义。
+    //  provider 只写在 ① 那个配置里。
+    //
+    //  依赖：CMake Tools 扩展 + 本工程 configure 过一次。
+    //    * 打开工程时 cmake.configureOnOpen 会自动 configure；
+    //    * scripts\clean.bat 会删掉整个 build\，之后请执行一次
+    //      "CMake: Configure"（或在 VSCode 里构建一次），reply 就回来了。
+    //      （顶层 cmake\istar_common.cmake 里已补了一个中立的 File API 查询，
+    //        所以纯脚本构建也能把 reply 带出来。）
+    //    * 若 ① 在你机器上不灵，切到 ②（static）：命令面板
+    //      "C/C++: Select a Configuration..."，系统头需要你在【用户设置】里给
+    //      一行 C_Cpp.default.compilerPath（例子见 c_cpp_properties.json 注释）。
+    //      机器相关的设置放用户设置，仓库保持干净。
+    // ============================================================
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.errorSquiggles": "enabled",
+
+    "files.watcherExclude": {
+        "**/build/**": true,
+        "**/output/**": true,
+        "**/platform/build/**": true,
+        "**/platform/deploy/**": true
+    }
+}
